@@ -1,0 +1,23 @@
+{
+  "name": "init",
+  "version": "1.0.0",
+  "description": "使用React框架构建Markdown 编辑器等应用",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/code-zhangrui/React-built.git"
+  },
+  "author": "zhangrui",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/code-zhangrui/React-built/issues"
+  },
+  "homepage": "https://github.com/code-zhangrui/React-built#readme",
+  "dependencies": {
+    "ladash": "^1.2.0",
+    "webpack": "^2.3.2"
+  }
+}
