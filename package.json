@@ -4,7 +4,8 @@
   "description": "使用React框架构建Markdown 编辑器等应用",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "webpack"
   },
   "repository": {
     "type": "git",
@@ -17,6 +18,7 @@
   },
   "homepage": "https://github.com/code-zhangrui/React-built#readme",
   "dependencies": {
+    "jquery": "^3.2.1",
     "ladash": "^1.2.0",
     "webpack": "^2.3.2"
   }
