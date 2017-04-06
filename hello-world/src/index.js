@@ -8,6 +8,6 @@ import './index.css';
 //   document.getElementById('root')
 // );
 ReactDOM.render(
-  <h1>Hi, world!</h1>,
+  <p>啊，美丽的大自然！</p>,
   document.getElementById('root')
 );
