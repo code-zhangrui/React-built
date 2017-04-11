@@ -2,17 +2,22 @@
    color: #333;
    border: 1px solid #aaa;
    border-radius: 4px;
-   background: white;
+   background: rgba(153, 62, 106,0.6);
+   color:white;
    margin: 2em;
    padding: 0 1em;
-   min-height: 20em;
+   min-height: 30em;
    min-width: 32em;
    box-shadow: 0 0 1em hsla(0,0%,0%,0.15);
   }
 
  .App > .todoList> li:nth-child(odd){
-   background: #eee;
+   background: rgba(153, 62, 106,0.3);
  }
  .App > .todoList> li:nth-child(even){
    background: transparent;
  }
+
+.myTitle{
+  text-align: center;
+}
