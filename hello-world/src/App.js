@@ -45,8 +45,8 @@ class App extends Component {
   }//render
 
   componentDidUpdate(){
- +    localStore.save('todoList', this.state.todoList)
- +  }
+     localStore.save('todoList', this.state.todoList)
+   }
 
   toggle(e,todo){
     todo.status=todo.status==='completed'?'':'completed'

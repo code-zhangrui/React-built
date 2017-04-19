@@ -5,6 +5,7 @@ import './index.css';
 import './App.css';
 import TodoInput from './TodoInput'
 import TodoItem from './TodoItem'
+import * as localStore from './localStore'
 
 class App extends Component {
   constructor(props){
@@ -14,8 +15,7 @@ class App extends Component {
 //super(props)的目的：在constructor中可以使用this.props
     this.state={  
       newTodo:'',
-      todoList:[
-      ]
+      todoList: localStore.load('todoList') || []
     }
   }//constructor
 
@@ -43,6 +43,11 @@ class App extends Component {
       </div>
     )//return
   }//render
+
+  componentDidUpdate(){
+     localStore.save('todoList', this.state.todoList)
+   }
+
   toggle(e,todo){
     todo.status=todo.status==='completed'?'':'completed'
     this.setState(this.state)
