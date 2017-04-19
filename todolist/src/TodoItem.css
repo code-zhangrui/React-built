@@ -1,0 +1,27 @@
+ .TodoItem{
+   padding: .5em;
+   display: flex;
+   align-items: center;
+ }
+ .TodoItem>.title{
+   flex-grow: 1;
+   padding: 0 .5em;
+ }
+
+ .deleteButton{
+   width:45px;
+   background: rgb(153, 62, 106);
+   color:white;
+   border:1px solid white;
+ }
+
+/*.ipt{
+   width:45px;
+   border:none;
+   background: rgb(153, 62, 106);
+   color:white;
+}*/
+ .deleteButton:hover{
+   background: white;
+   color:rgb(153, 62, 106);
+ }

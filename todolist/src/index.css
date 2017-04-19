@@ -1,0 +1,9 @@
+body{
+  background: url('http://cn.bing.com/az/hprichbg/rb/WindmillLighthouse_ZH-CN12870536851_1920x1080.jpg');
+  background-size: cover;
+ }
+ #root{
+   display: flex;
+   /*justify-content: center;
+   min-height: 100vh;*/
+  }
