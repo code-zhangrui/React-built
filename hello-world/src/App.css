@@ -10,7 +10,17 @@
    min-width: 32em;
    box-shadow: 0 0 1em hsla(0,0%,0%,0.15);
   }
-
+ .App button{
+   margin-left:15px;
+   width:45px;
+   background: rgb(153, 62, 106);
+   color:white;
+   border:1px solid white;
+ }
+  .App button:hover{
+   background: white;
+   color:rgb(153, 62, 106);
+ }
  .App > .todoList> li:nth-child(odd){
    background: rgba(153, 62, 106,0.3);
  }

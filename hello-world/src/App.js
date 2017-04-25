@@ -5,7 +5,8 @@ import './index.css';
 import './App.css';
 import TodoInput from './TodoInput'
 import TodoItem from './TodoItem'
-import * as localStore from './localStore'
+import UserDialog from './UserDialog'
+import {getCurrentUser, signOut} from './leanCloud'
 
 class App extends Component {
   constructor(props){
@@ -13,9 +14,10 @@ class App extends Component {
 //super关键字用于访问父对象上的函数
 //调用super的原因：在ES6中，在子类的constructor中必须先调用super才能引用this
 //super(props)的目的：在constructor中可以使用this.props
-    this.state={  
+    this.state={
+      user: getCurrentUser() || {}, 
       newTodo:'',
-      todoList: localStore.load('todoList') || []
+      todoList:[]
     }
   }//constructor
 
@@ -31,7 +33,9 @@ class App extends Component {
 
       return (
       <div className="App">
-        <h1 className="myTitle">我的记事本</h1>
+        <h1>{this.state.user.username||'我'}的待办
+           {this.state.user.id ? <button onClick={this.signOut.bind(this)}>登出</button> : null}
+        </h1>
         <div className="inputWrapper">
           <TodoInput content={this.state.newTodo}
           onChange={this.changeTitle.bind(this)}
@@ -40,12 +44,26 @@ class App extends Component {
         <ol className="todoList">
           {todos}
         </ol>
+        {this.state.user.id ? 
+           null : 
+           <UserDialog 
+             onSignUp={this.onSignUpOrSignIn.bind(this)} 
+             onSignIn={this.onSignUpOrSignIn.bind(this)}/>}
       </div>
     )//return
   }//render
-
+  signOut(){
+     signOut()
+     let stateCopy = JSON.parse(JSON.stringify(this.state))
+     stateCopy.user = {}
+     this.setState(stateCopy)
+   }
+  onSignUpOrSignIn(user){
+      let stateCopy = JSON.parse(JSON.stringify(this.state)) 
+      stateCopy.user = user
+      this.setState(stateCopy)
+   }
   componentDidUpdate(){
-     localStore.save('todoList', this.state.todoList)
    }
 
   toggle(e,todo){
