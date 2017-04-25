@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import './UserDialog.css'
 import {signUp, signIn} from './leanCloud'
+import errorsInfo from './errorsInfo'
 export default class UserDialog extends Component{
   constructor(props){
     super(props)

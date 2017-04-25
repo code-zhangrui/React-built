@@ -1,37 +1,60 @@
-import React, { Component } from 'react';
-import 'normalize.css'
-import './reset.css'
-import './index.css';
-import './App.css';
+import React, {Component} from 'react'
+
 import TodoInput from './TodoInput'
 import TodoItem from './TodoItem'
 import UserDialog from './UserDialog'
-import {getCurrentUser, signOut} from './leanCloud'
+import copyState from './copyState'
+import AV, {getCurrentUser, signOut} from './leanCloud'
+
+import './App.css';
+
 
 class App extends Component {
-  constructor(props){
+  constructor(props) {
     super(props)
-//super关键字用于访问父对象上的函数
-//调用super的原因：在ES6中，在子类的constructor中必须先调用super才能引用this
-//super(props)的目的：在constructor中可以使用this.props
-    this.state={
-      user: getCurrentUser() || {}, 
-      newTodo:'',
-      todoList:[]
+    this.state = {
+      user: getCurrentUser() || {},
+      newTodo: '',
+      todoList: []
     }
-  }//constructor
+  }
 
   render() {
-      let todos=this.state.todoList.filter((item)=>!item.deleted).map((item,index)=>{
-        return(
-          <li key={index}>
-            <TodoItem todo={item} onToggle={this.toggle.bind(this)} 
-            onDelete={this.delete.bind(this)}/>
+    let todos = this.state.todoList
+      .filter((item) => !item.deleted)
+      .map((item, index) => {
+        return (
+          <li key={item.id}>
+            <TodoItem todo={item} onToggle={this.toggle}
+                      onDelete={this.delete}/>
           </li>
-        )//return
+        )
       })
 
-      return (
+    let mainPage = (
+      <div className="mainPage">
+        <h1>{ this.state.user.username || '我'}的待办
+          { this.state.user.id ? <button onClick={ this.userSignOut }>登出</button> : null}</h1>
+        <div className="inputWrapper">
+          <TodoInput content={this.state.newTodo}
+                     onSubmit={this.addTodo}
+                     onChange={this.changeTitle}/>
+        </div>
+        <ol className="todoList">
+          {todos}
+        </ol>
+      </div>
+    )
+    return (
+      <div className="App">
+        { this.state.user.id ?
+          mainPage :
+          <UserDialog
+            onSignUp={this.onSignUpOrSignIn}
+            onSignIn={this.onSignUpOrSignIn}/> }
+      </div>
+    )
+    /*return (
       <div className="App">
         <h1>{this.state.user.username||'我'}的待办
            {this.state.user.id ? <button onClick={this.signOut.bind(this)}>登出</button> : null}
@@ -50,53 +73,146 @@ class App extends Component {
              onSignUp={this.onSignUpOrSignIn.bind(this)} 
              onSignIn={this.onSignUpOrSignIn.bind(this)}/>}
       </div>
-    )//return
-  }//render
-  signOut(){
-     signOut()
-     let stateCopy = JSON.parse(JSON.stringify(this.state))
-     stateCopy.user = {}
-     this.setState(stateCopy)
-   }
-  onSignUpOrSignIn(user){
-      let stateCopy = JSON.parse(JSON.stringify(this.state)) 
-      stateCopy.user = user
+    )//return*/
+  }
+
+  componentWillMount() {
+
+    // if (AV.User.current()) {
+    //   const query = new AV.Query('AllTodos')
+    //   query.find().then((todos) => {
+    //
+    //     const stateCopy = copyState(this.state)
+    //     stateCopy.todoList = JSON.parse(todos[0].attributes.AllTodos)
+    //     stateCopy.todoList.id = todos[0].id
+    //     this.setState(stateCopy)
+    //     console.log(this.state.todoList)
+    //
+    //   }, (error) => {
+    //     console.log(error)
+    //   })
+    // }
+    this.fetchData()
+  }
+
+  componentDidUpdate() {
+
+  }
+
+  addTodo = (event) => {
+    if (event.target.value) {
+      this.state.todoList.push({
+        id: idMaker(),
+        title: event.target.value,
+        status: null,
+        deleted: false
+      })
+      this.setState({
+        newTodo: '',
+        todoList: this.state.todoList
+      })
+    }
+    this.saveOrUpdateData()
+
+  }
+  changeTitle = (event) => {
+    this.setState({
+      newTodo: event.target.value,
+      todoList: this.state.todoList
+    })
+    this.saveOrUpdateData()
+
+  }
+  toggle = (e, todo) => {
+    todo.status = todo.status === 'completed' ? '' : 'completed'
+    this.setState(this.state)
+    this.saveOrUpdateData()
+
+  }
+  delete = (event, todo) => {
+    todo.deleted = true
+    this.setState(this.state)
+    this.saveOrUpdateData()
+
+  }
+
+  onSignUpOrSignIn = (user) => {
+    this.fetchData()
+    let stateCopy = copyState(this.state)
+    stateCopy.user = user
+    this.setState(stateCopy)
+  }
+  userSignOut = () => {
+    signOut()
+    let stateCopy = copyState(this.state)
+    stateCopy.user = {}
+    this.setState(stateCopy)
+  }
+  saveData = () => {
+
+    let dataString = JSON.stringify(this.state.todoList)
+
+    const AVTodos = AV.Object.extend('AllTodos')
+    const avTodos = new AVTodos()
+    const acl = new AV.ACL()
+
+    acl.setReadAccess(AV.User.current(), true)
+    acl.setWriteAccess(AV.User.current(), true)
+
+    avTodos.set('AllTodos', dataString)
+    avTodos.setACL(acl)
+
+    avTodos.save().then((todo) => {
+      let stateCopy = copyState(this.state)
+      stateCopy.todoList.id = todo.id
       this.setState(stateCopy)
-   }
-  componentDidUpdate(){
-   }
+      console.log('保存成功', todo.id)
+    }, (error) => {
+      console.log('保存失败')
+    })
 
-  toggle(e,todo){
-    todo.status=todo.status==='completed'?'':'completed'
-    this.setState(this.state)
-  }//toggle
-  changeTitle(event){
-    this.setState({
-      newTodo:event.target.value,
-      todoList:this.state.todoList
+  }
+  updateData = () => {
+    let dataString = JSON.stringify(this.state.todoList)
+    console.log(this.state.todoList)
+    let avTodos = AV.Object.createWithoutData('AllTodos',this.state.todoList.id)
+    avTodos.set('AllTodos',dataString)
+    avTodos.save().then(()=>{
+      console.log('更新成功')
     })
-  }//changeTitle
-  addTodo(event){
-    this.state.todoList.push({
-      id:idMaker(),
-      title:event.target.value,
-      status:null,
-      deleted:false
-    })
-    this.setState({
-      newTodo:'',
-      todoList:this.state.todoList
-    })
-  }//addTodo
-  delete(event, todo){
-    todo.deleted=true
-    this.setState(this.state)
-  }//delete
-}//class App
+  }
+  saveOrUpdateData = () => {
+    if(this.state.todoList.id){
+      this.updateData()
+    } else {
+      console.log(1)
+      this.saveData()
+    }
+  }
+  fetchData=()=>{
+    if (AV.User.current()) {
+      const query = new AV.Query('AllTodos')
+      query.find().then((todos) => {
 
-export default App;
-let id=0
-function idMaker(){
-  id +=1
+        const stateCopy = copyState(this.state)
+        stateCopy.todoList = JSON.parse(todos[0].attributes.AllTodos)
+        stateCopy.todoList.id = todos[0].id
+        this.setState(stateCopy)
+        console.log(this.state.todoList)
+
+      }, (error) => {
+        console.log(error)
+      })
+    }
+  }
+
+
+}
+
+export default App
+
+let id = 0
+function idMaker() {
+  id += 1
   return id
 }
