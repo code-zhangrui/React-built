@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import './TodoInput.css'
-export default class TodoInput extends Component{
+
 function submit (props, e) {
    if (e.key === 'Enter') {
      props.onSubmit(e)
